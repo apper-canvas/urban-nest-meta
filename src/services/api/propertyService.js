@@ -262,11 +262,30 @@ class PropertyService {
     }
   }
 
-  parseProperty(property) {
+parseProperty(property) {
+    // Helper function to safely parse array fields
+    const parseArrayField = (value) => {
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+      
+      // Try to parse as JSON
+      if (typeof value === 'string') {
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [value];
+        } catch (e) {
+          // If JSON parse fails, treat as single string value
+          return [value];
+        }
+      }
+      
+      return [];
+    };
+
     return {
       ...property,
-      images_c: property.images_c ? JSON.parse(property.images_c) : [],
-      amenities_c: property.amenities_c ? JSON.parse(property.amenities_c) : [],
+      images_c: parseArrayField(property.images_c),
+      amenities_c: parseArrayField(property.amenities_c),
     };
   }
 }
