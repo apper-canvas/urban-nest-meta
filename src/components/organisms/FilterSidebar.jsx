@@ -22,7 +22,7 @@ const FilterSidebar = ({ filters, onFiltersChange, onReset }) => {
 
   const handleReset = () => {
     const resetFilters = {
-      priceMin: null,
+priceMin: null,
       priceMax: null,
       bedrooms: null,
       bathrooms: null,

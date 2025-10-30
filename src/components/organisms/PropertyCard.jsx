@@ -14,15 +14,15 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite }) => {
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
-      <Link to={`/property/${property.Id}`} className="block group">
+<Link to={`/property/${property.Id}`} className="block group">
         <div className="bg-white rounded-lg shadow-card overflow-hidden transition-all duration-200 group-hover:shadow-card-hover">
           <div className="relative aspect-video overflow-hidden">
             <img
               src={property.images[0]}
-              alt={property.title}
+alt={property.title_c}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:brightness-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+src={property.images_c[0]}
             <div className="absolute top-3 right-3">
               <FavoriteButton
                 isFavorite={isFavorite}
@@ -30,27 +30,27 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite }) => {
               />
             </div>
             <div className="absolute top-3 left-3">
-              <PriceTag price={property.price} />
+<PriceTag price={property.price_c} />
             </div>
             <div className="absolute bottom-3 left-3">
-              <Badge variant="primary">{property.propertyType}</Badge>
+<Badge variant="primary">{property.property_type_c}</Badge>
             </div>
           </div>
 
           <div className="p-5">
             <h3 className="text-lg font-display font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-              {property.title}
+{property.title_c}
             </h3>
             
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
               <ApperIcon name="MapPin" size={16} className="text-primary flex-shrink-0" />
-              <span className="line-clamp-1">{property.city}, {property.state}</span>
+<span className="line-clamp-1">{property.city_c}, {property.state_c}</span>
             </div>
 
-            <PropertyStats
-              bedrooms={property.bedrooms}
-              bathrooms={property.bathrooms}
-              squareFeet={property.squareFeet}
+<PropertyStats
+              bedrooms={property.bedrooms_c}
+              bathrooms={property.bathrooms_c}
+              squareFeet={property.square_feet_c}
             />
           </div>
         </div>

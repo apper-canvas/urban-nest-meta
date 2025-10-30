@@ -1,30 +1,30 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import propertyService from "@/services/api/propertyService";
 import favoritesService from "@/services/api/favoritesService";
 import PropertyGrid from "@/components/organisms/PropertyGrid";
 import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import { useNavigate } from "react-router-dom";
+import Empty from "@/components/ui/Empty";
+import Error from "@/components/ui/Error";
 
 const SavedPage = () => {
   const navigate = useNavigate();
-  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
-    loadSavedProperties();
+loadSavedProperties();
   }, []);
 
-  const loadSavedProperties = async () => {
+const loadSavedProperties = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const savedIds = favoritesService.getFavoriteIds();
+      const savedIds = await favoritesService.getFavoriteIds();
       setFavoriteIds(savedIds);
 
       if (savedIds.length === 0) {
@@ -44,11 +44,11 @@ const SavedPage = () => {
     }
   };
 
-  const handleToggleFavorite = (propertyId) => {
+const handleToggleFavorite = async (propertyId) => {
     try {
-      favoritesService.removeFavorite(propertyId);
+      await favoritesService.removeFavorite(propertyId);
       toast.info("Property removed from favorites");
-      loadSavedProperties();
+      await loadSavedProperties();
       window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (err) {
       toast.error("Failed to update favorites");

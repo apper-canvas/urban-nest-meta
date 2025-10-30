@@ -1,17 +1,23 @@
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import ApperIcon from "@/components/ApperIcon";
-import Badge from "@/components/atoms/Badge";
+import { useAuth } from "@/layouts/Root";
+import { useSelector } from "react-redux";
 import favoritesService from "@/services/api/favoritesService";
-import { useEffect, useState } from "react";
-
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 const Header = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const { logout } = useAuth();
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const updateCount = () => {
-      setFavoriteCount(favoritesService.getFavorites().length);
+    const updateCount = async () => {
+      const favorites = await favoritesService.getFavorites();
+      setFavoriteCount(favorites.length);
     };
 
     updateCount();
@@ -57,7 +63,7 @@ const Header = () => {
                   size={24} 
                   className="group-hover:scale-110 transition-transform duration-200"
                 />
-                {favoriteCount > 0 && (
+{favoriteCount > 0 && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -69,12 +75,27 @@ const Header = () => {
                   </motion.div>
                 )}
               </div>
-              <span className="hidden sm:inline">Saved</span>
             </button>
-          </nav>
-        </div>
+          {isAuthenticated && (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                onClick={logout}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <ApperIcon name="LogOut" size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </motion.div>
+          )}
+</nav>
       </div>
-    </motion.header>
+    </div>
+  </motion.header>
   );
 };
 

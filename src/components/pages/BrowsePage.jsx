@@ -1,15 +1,13 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import propertyService from "@/services/api/propertyService";
 import favoritesService from "@/services/api/favoritesService";
-import SearchBar from "@/components/molecules/SearchBar";
-import FilterSidebar from "@/components/organisms/FilterSidebar";
 import PropertyGrid from "@/components/organisms/PropertyGrid";
+import FilterSidebar from "@/components/organisms/FilterSidebar";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import ApperIcon from "@/components/ApperIcon";
-
+import SearchBar from "@/components/molecules/SearchBar";
 const BrowsePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
@@ -28,7 +26,7 @@ const BrowsePage = () => {
     searchQuery: searchParams.get("q") || ""
   });
 
-  useEffect(() => {
+useEffect(() => {
     loadProperties();
     loadFavorites();
   }, []);
@@ -47,8 +45,8 @@ const BrowsePage = () => {
     }
   };
 
-  const loadFavorites = () => {
-    const ids = favoritesService.getFavoriteIds();
+const loadFavorites = async () => {
+    const ids = await favoritesService.getFavoriteIds();
     setFavoriteIds(ids);
   };
 
@@ -100,19 +98,19 @@ const BrowsePage = () => {
     applyFilters(resetFilters);
   };
 
-  const handleToggleFavorite = (propertyId) => {
+const handleToggleFavorite = async (propertyId) => {
     const isFavorite = favoriteIds.includes(propertyId);
     
     try {
       if (isFavorite) {
-        favoritesService.removeFavorite(propertyId);
+        await favoritesService.removeFavorite(propertyId);
         toast.info("Property removed from favorites");
       } else {
-        favoritesService.addFavorite(propertyId);
+        await favoritesService.addFavorite(propertyId);
         toast.success("Property added to favorites");
       }
       
-      loadFavorites();
+      await loadFavorites();
       window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (err) {
       toast.error("Failed to update favorites");

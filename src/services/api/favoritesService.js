@@ -1,62 +1,110 @@
-const STORAGE_KEY = "urbanNestFavorites";
+import { getApperClient } from "@/services/apperClient";
 
 class FavoritesService {
-  getFavorites() {
+  async getFavorites() {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      const apperClient = getApperClient();
+
+      const params = {
+        fields: [
+          { field: { Name: "Id" } },
+          { field: { Name: "property_id_c" } },
+          { field: { Name: "saved_timestamp_c" } },
+        ],
+      };
+
+      const response = await apperClient.fetchRecords("favorite_c", params);
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      if (!response?.data?.length) {
+        return [];
+      }
+
+      return response.data;
     } catch (error) {
       console.error("Error reading favorites:", error);
       return [];
     }
   }
 
-  isFavorite(propertyId) {
-    const favorites = this.getFavorites();
-    return favorites.some(fav => fav.propertyId === propertyId);
+  async isFavorite(propertyId) {
+    try {
+      const favorites = await this.getFavorites();
+      return favorites.some(fav => fav.property_id_c === propertyId);
+    } catch (error) {
+      console.error("Error checking favorite:", error);
+      return false;
+    }
   }
 
-  addFavorite(propertyId) {
+  async addFavorite(propertyId) {
     try {
-      const favorites = this.getFavorites();
-      if (!this.isFavorite(propertyId)) {
-        const newFavorite = {
-          propertyId: propertyId,
-          savedTimestamp: Date.now()
-        };
-        favorites.push(newFavorite);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+      const isFav = await this.isFavorite(propertyId);
+      if (isFav) {
+        return;
       }
-      return favorites;
+
+      const apperClient = getApperClient();
+
+      const params = {
+        records: [
+          {
+            property_id_c: propertyId,
+            saved_timestamp_c: new Date().toISOString(),
+          },
+        ],
+      };
+
+      const response = await apperClient.createRecord("favorite_c", params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response;
     } catch (error) {
       console.error("Error adding favorite:", error);
       throw error;
     }
   }
 
-  removeFavorite(propertyId) {
+  async removeFavorite(propertyId) {
     try {
-      let favorites = this.getFavorites();
-      favorites = favorites.filter(fav => fav.propertyId !== propertyId);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
-      return favorites;
+      const favorites = await this.getFavorites();
+      const favorite = favorites.find(fav => fav.property_id_c === propertyId);
+
+      if (!favorite) {
+        return;
+      }
+
+      const apperClient = getApperClient();
+
+      const params = {
+        RecordIds: [favorite.Id],
+      };
+
+      const response = await apperClient.deleteRecord("favorite_c", params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response;
     } catch (error) {
       console.error("Error removing favorite:", error);
       throw error;
     }
   }
 
-  getFavoriteIds() {
-    return this.getFavorites().map(fav => fav.propertyId);
-  }
-
-  clearFavorites() {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (error) {
-      console.error("Error clearing favorites:", error);
-      throw error;
-    }
+  async getFavoriteIds() {
+    const favorites = await this.getFavorites();
+    return favorites.map(fav => fav.property_id_c);
   }
 }
 

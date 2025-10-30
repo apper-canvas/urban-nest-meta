@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 import propertyService from "@/services/api/propertyService";
 import favoritesService from "@/services/api/favoritesService";
-import ImageGallery from "@/components/organisms/ImageGallery";
-import PropertyStats from "@/components/molecules/PropertyStats";
-import PriceTag from "@/components/molecules/PriceTag";
-import FavoriteButton from "@/components/molecules/FavoriteButton";
+import ApperIcon from "@/components/ApperIcon";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
+import ImageGallery from "@/components/organisms/ImageGallery";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import ApperIcon from "@/components/ApperIcon";
-import { format } from "date-fns";
+import PriceTag from "@/components/molecules/PriceTag";
+import PropertyStats from "@/components/molecules/PropertyStats";
+import FavoriteButton from "@/components/molecules/FavoriteButton";
 
 const PropertyDetailPage = () => {
   const { id } = useParams();
@@ -41,18 +41,18 @@ const PropertyDetailPage = () => {
       setLoading(false);
     }
   };
-
-  const checkFavorite = () => {
-    setIsFavorite(favoritesService.isFavorite(parseInt(id)));
+const checkFavorite = async () => {
+    const isFav = await favoritesService.isFavorite(parseInt(id));
+    setIsFavorite(isFav);
   };
 
-  const handleToggleFavorite = () => {
+const handleToggleFavorite = async () => {
     try {
       if (isFavorite) {
-        favoritesService.removeFavorite(parseInt(id));
+        await favoritesService.removeFavorite(parseInt(id));
         toast.info("Property removed from favorites");
       } else {
-        favoritesService.addFavorite(parseInt(id));
+        await favoritesService.addFavorite(parseInt(id));
         toast.success("Property added to favorites");
       }
       setIsFavorite(!isFavorite);
@@ -81,9 +81,9 @@ const PropertyDetailPage = () => {
         Back to Properties
       </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <ImageGallery images={property.images} alt={property.title} />
+          <ImageGallery images={property.images_c} alt={property.title_c} />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -94,44 +94,45 @@ const PropertyDetailPage = () => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <PriceTag price={property.price} />
-                  <Badge variant="primary">{property.propertyType}</Badge>
-                  <Badge variant="secondary">{property.listingType}</Badge>
+                  <PriceTag price={property.price_c} />
+                  <Badge variant="primary">{property.property_type_c}</Badge>
+                  <Badge variant="secondary">{property.listing_type_c}</Badge>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-3">
-                  {property.title}
+                  {property.title_c}
                 </h1>
                 <div className="flex items-center gap-2 text-gray-600 mb-4">
                   <ApperIcon name="MapPin" size={20} className="text-primary" />
                   <span className="font-body">
-                    {property.address}, {property.city}, {property.state} {property.zipCode}
+                    {property.address_c}, {property.city_c}, {property.state_c} {property.zip_code_c}
                   </span>
                 </div>
                 <PropertyStats
-                  bedrooms={property.bedrooms}
-                  bathrooms={property.bathrooms}
-                  squareFeet={property.squareFeet}
+                  bedrooms={property.bedrooms_c}
+                  bathrooms={property.bathrooms_c}
+                  squareFeet={property.square_feet_c}
                   size="lg"
+                  className="mt-2"
                 />
               </div>
               <FavoriteButton
                 isFavorite={isFavorite}
-                onToggleFavorite={handleToggleFavorite}
-                className="mt-2"
+                onToggle={handleToggleFavorite}
+                size="lg"
               />
             </div>
 
-            <div className="prose max-w-none mt-8">
+<div className="prose max-w-none mt-8">
               <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">Description</h2>
-              <p className="text-gray-600 font-body leading-relaxed whitespace-pre-line">
-                {property.description}
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line font-body">
+                {property.description_c}
               </p>
             </div>
 
             <div className="mt-8">
               <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">Amenities</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {property.amenities.map((amenity, idx) => (
+                {property.amenities_c?.map((amenity, idx) => (
                   <div
                     key={idx}
                     className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20"
@@ -143,25 +144,25 @@ const PropertyDetailPage = () => {
               </div>
             </div>
 
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-lg bg-white shadow-card">
                 <p className="text-sm text-gray-600 mb-1">Year Built</p>
-                <p className="text-lg font-display font-bold text-gray-900">{property.yearBuilt}</p>
+                <p className="text-lg font-display font-bold text-gray-900">{property.year_built_c}</p>
               </div>
               <div className="p-4 rounded-lg bg-white shadow-card">
                 <p className="text-sm text-gray-600 mb-1">Parking</p>
-                <p className="text-lg font-display font-bold text-gray-900">{property.parking}</p>
+                <p className="text-lg font-display font-bold text-gray-900">{property.parking_c}</p>
               </div>
               <div className="p-4 rounded-lg bg-white shadow-card">
                 <p className="text-sm text-gray-600 mb-1">Pet Friendly</p>
                 <p className="text-lg font-display font-bold text-gray-900">
-                  {property.petFriendly ? "Yes" : "No"}
+                  {property.pet_friendly_c ? "Yes" : "No"}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-white shadow-card">
                 <p className="text-sm text-gray-600 mb-1">Listed</p>
                 <p className="text-lg font-display font-bold text-gray-900">
-                  {format(new Date(property.dateListedTimestamp), "MMM d, yyyy")}
+                  {format(new Date(property.date_listed_timestamp_c), "MMM d, yyyy")}
                 </p>
               </div>
             </div>
@@ -184,20 +185,20 @@ const PropertyDetailPage = () => {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
                   <ApperIcon name="User" size={24} className="text-white" />
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900">{property.contactName}</p>
+<div>
+                  <p className="font-medium text-gray-900">{property.contact_name_c}</p>
                   <p className="text-sm text-gray-600">Real Estate Agent</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 text-gray-600">
                 <ApperIcon name="Phone" size={20} className="text-primary" />
-                <span className="font-body">{property.contactPhone}</span>
+                <span className="font-body">{property.contact_phone_c}</span>
               </div>
 
               <div className="flex items-center gap-3 text-gray-600">
                 <ApperIcon name="Mail" size={20} className="text-primary" />
-                <span className="font-body break-all">{property.contactEmail}</span>
+                <span className="font-body break-all">{property.contact_email_c}</span>
               </div>
             </div>
 
