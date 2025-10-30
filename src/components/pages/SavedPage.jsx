@@ -6,15 +6,14 @@ import favoritesService from "@/services/api/favoritesService";
 import PropertyGrid from "@/components/organisms/PropertyGrid";
 import Loading from "@/components/ui/Loading";
 import Empty from "@/components/ui/Empty";
-import Empty from "@/components/ui/Empty";
 import Error from "@/components/ui/Error";
 
 const SavedPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [properties, setProperties] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState([]);
-
   useEffect(() => {
 loadSavedProperties();
   }, []);
