@@ -18,11 +18,10 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite }) => {
         <div className="bg-white rounded-lg shadow-card overflow-hidden transition-all duration-200 group-hover:shadow-card-hover">
           <div className="relative aspect-video overflow-hidden">
             <img
-              src={property.images[0]}
-alt={property.title_c}
+src={property.images_c?.[0] || '/placeholder-property.jpg'}
+              alt={property.title_c || 'Property image'}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:brightness-110"
             />
-src={property.images_c[0]}
             <div className="absolute top-3 right-3">
               <FavoriteButton
                 isFavorite={isFavorite}
